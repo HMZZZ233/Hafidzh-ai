@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeImageModal = document.getElementById('closeImageModal');
     const submitRatingBtn = document.querySelector('.submit-rating');
     const ratingTextarea = document.querySelector('.modal-body textarea');
+    const ratingUsername = document.getElementById('ratingUsername');
     let selectedRating = 0;
     
     // Fungsi buat pop-up
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user: "anonymous", 
+                    user: ratingUsername.value.trim() || "anonymous",
                     rating: selectedRating,
                     message: userMessage,
                     ip
