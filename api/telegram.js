@@ -3,58 +3,37 @@ export default async function handler(req, res) {
         return res.status(405).json({ ok: false, error: "Method not allowed" });
     }
 
-    const { chat_id, type, user, rating, message, bug, ip, ua } = req.body;
+    const { type, user, rating, message, ip } = req.body;
+    const token = process.env.PANEL_TOKEN;
+    const chatId = process.env.ID_PANEL;
 
-    // Validasi chat_id
-    if (chat_id !== process.env.ID_PANEL) {
-        return res.status(403).json({ ok: false, error: "Maaf, kamu bukan Hamzah W.D" });
+    if (!token || !chatId) {
+        return res.status(500).json({ ok: false, error: "Bot token / Chat ID belum di set di env" });
     }
 
     let text = "";
-
     if (type === "rating") {
-        text = `
-⭐️ *RATING BARU MASUK*
-👤 User: ${user}
-⭐ Rating: ${rating}
-💬 Pesan: ${message || "-"}
-🌐 IP: ${ip}
-📱 UA: ${ua || "-"}
-        `;
+        text = `⭐ *New Rating*\n👤 User: ${user}\n🌟 Rating: ${rating}\n💬 Pesan: ${message}\n🌐 IP: ${ip}`;
     } else if (type === "bug") {
-        text = `
-🐞 *BUG REPORT BARU*
-👤 User: ${user}
-🐞 Bug: ${bug || "-"}
-💬 Pesan: ${message || "-"}
-🌐 IP: ${ip}
-📱 UA: ${ua || "-"}
-        `;
+        text = `🐞 *New Bug Report*\n👤 User: ${user}\n💬 Pesan: ${message}\n🌐 IP: ${ip}`;
     } else if (type === "visitor") {
-        text = `
-👀 *VISITOR BARU*
-🌐 IP: ${ip}
-📱 UA: ${ua || "-"}
-        `;
+        text = `👀 *New Visitor*\n🌐 IP: ${ip}\n📱 UA: ${message}`;
     } else {
-        return res.status(400).json({ ok: false, error: "Invalid type" });
+        text = `📩 *New Message*\n${JSON.stringify(req.body, null, 2)}`;
     }
 
     try {
-        await fetch(`https://api.telegram.org/bot${process.env.PANEL_TOKEN}/sendMessage`, {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                chat_id: process.env.ID_PANEL,
+                chat_id: chatId,
                 text,
                 parse_mode: "Markdown"
             })
         });
 
-        // Bisa tambahkan pesan khusus kalau chat_id valid
-        if (chat_id === process.env.ID_PANEL) {
-            return res.status(200).json({ ok: true, message: "Hai Tuan" });
-        }
+        return res.status(200).json({ ok: true });
     } catch (err) {
         return res.status(500).json({ ok: false, error: err.message });
     }
