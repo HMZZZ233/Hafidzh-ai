@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     starsSelect.forEach(star => {
         star.addEventListener('click', function() {
             const rating = this.getAttribute('data-rating');
+            selectedRating = rating;
             // Update stars appearance
             starsSelect.forEach(s => {
                 if (s.getAttribute('data-rating') <= rating) {
