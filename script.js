@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitRatingBtn = document.querySelector('.submit-rating');
     const ratingTextarea = document.querySelector('.modal-body textarea');
     let selectedRating = 0;
-
+    
     // Fungsi buat pop-up
     function showPopup(msg, success) {
         const popup = document.createElement("div");
@@ -208,6 +208,63 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Submit Rating
+    submitRatingBtn.addEventListener('click', async () => {
+        if (!selectedRating) {
+            showPopup("Pilih rating dulu!", false);
+            return;
+        }
+
+        const userMessage = ratingTextarea.value.trim();
+        const ip = await fetch("https://api64.ipify.org?format=json")
+            .then(res => res.json())
+            .then(d => d.ip)
+            .catch(() => "Unknown");
+
+        try {
+            const res = await fetch("/api/telegram", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user: "anonymous", 
+                    rating: selectedRating,
+                    message: userMessage,
+                    ip
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                showPopup("Ratings anda berhasil terkirim status code: 200", true);
+            } else {
+                showPopup("Maaf, Ratings anda tidak terkirim\nErr: " + (data.error || "Unknown"), false);
+            }
+        } catch (err) {
+            showPopup("Maaf, Ratings anda tidak terkirim\nErr: " + err.message, false);
+        }
+    });
+
+    // Popup Function
+    function showPopup(msg, success) {
+        const popup = document.createElement("div");
+        popup.classList.add("popup");
+        popup.innerHTML = `
+            <div class="popup-content ${success ? 'success' : 'error'}">
+                <button class="popup-close"><i class="fas fa-times"></i></button>
+                <p>${msg}</p>
+            </div>
+        `;
+        document.body.appendChild(popup);
+
+        // style inline biar ngikut tema
+        const content = popup.querySelector(".popup-content");
+        content.style.borderTop = success ? "5px solid var(--hijau)" : "5px solid #e74c3c";
+        content.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
+        popup.querySelector(".popup-close").onclick = () => popup.remove();
+        setTimeout(() => popup.remove(), 5000);
+    }
     
     // New chat functionality
     newChatBtn.addEventListener('click', function() {
