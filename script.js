@@ -108,12 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt })
             });
-            const data = await res.json();
-            if (data.status) {
-                imageResult.innerHTML = `<img src="${data.result.url}" alt="Generated Image" style="max-width:100%;border-radius:10px;"/>`;
-            } else {
-                imageResult.innerHTML = "⚠️ Gagal membuat gambar.";
-            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            imageResult.innerHTML = `<img src="${url}" alt="Generated Image" style="max-width:100%;border-radius:10px;"/>`;
         } catch (err) {
             imageResult.innerHTML = "🚨 Error koneksi ke server FLUX.";
         }
