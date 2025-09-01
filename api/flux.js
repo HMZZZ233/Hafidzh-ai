@@ -1,28 +1,35 @@
+export const config = {
+    api: {
+        responseLimit: false, // biar bisa nerima file besar
+    },
+};
+
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ status: false, error: "Method not allowed" });
     }
 
     try {
-        const { prompt } = await req.body ? JSON.parse(req.body) : {};
+        const { prompt } = req.body;
 
         if (!prompt) {
-            return res.status(400).json({ status: false, error: "Prompt is required" });
+            return res.status(400).json({ status: false, error: "Prompt kosong" });
         }
 
-        // Kirim ke API FLUX dari ENV
+        // Request ke API Flux
         const fluxRes = await fetch(process.env.API_FLUX, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ prompt }),
         });
 
-        const result = await fluxRes.json();
+        // Ambil hasilnya dalam bentuk buffer (gambar)
+        const buffer = Buffer.from(await fluxRes.arrayBuffer());
 
-        res.status(200).json({ status: true, result });
-    } catch (err) {
-        res.status(500).json({ status: false, error: "FLUX request failed", detail: err.message });
+        // Balikin ke frontend sebagai image/png
+        res.setHeader("Content-Type", "image/png");
+        res.status(200).send(buffer);
+    } catch (e) {
+        res.status(500).json({ status: false, error: e.message });
     }
 }
