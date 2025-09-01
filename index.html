@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hafidzh AI - Chatbot AI Modern</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -48,23 +48,22 @@
             </div>
         </div>
 
-    <!-- Modal Generate Images -->
-    <div class="modal hidden" id="imageModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Generate Image</h3>
-                <button class="close-modal" id="closeImageModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="imagePrompt" placeholder="Masukkan deskripsi gambar..." />
-                <button id="generateImageBtn">Generate</button>
-                <div id="imageResult" style="margin-top:15px;"></div>
+        <!-- Modal Generate Images -->
+        <div class="modal hidden" id="imageModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Generate Image</h3>
+                    <button class="close-modal" id="closeImageModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="imagePrompt" placeholder="Masukkan deskripsi gambar..." />
+                    <button id="generateImageBtn">Generate</button>
+                    <div id="imageResult" style="margin-top:15px;"></div>
+                </div>
             </div>
         </div>
-    </div>
-
 
         <!-- Overlay -->
         <div class="overlay" id="overlay"></div>
@@ -102,32 +101,22 @@
                         <i class="fas fa-microphone"></i>
                     </button>
                 </div>
+                <button class="send-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
-
+            
             <!-- Plus Menu -->
             <div class="plus-menu" id="plusMenu">
-                <button class="plus-menu-item">
+                <button class="plus-menu-item" id="uploadImageBtn">
                     <i class="fas fa-image"></i>
                     <span>Upload Images</span>
                 </button>
-                <button class="plus-menu-item">
+                <button class="plus-menu-item" id="openImageModalBtn">
                     <i class="fas fa-magic"></i>
                     <span>Generate Images</span>
                 </button>
             </div>
-
-            <!-- Plus Menu -->
-            <div class="plus-menu hidden" id="plusMenu">
-                <button class="plus-menu-item">
-                    <i class="fas fa-image"></i>
-                    <span>Upload Images</span>
-                </button>
-                <button class="plus-menu-item">
-                    <i class="fas fa-camera"></i>
-                    <span>Generate Images</span>
-                </button>
-            </div>
-        </div>
 
         <!-- Modal About -->
         <div class="modal hidden" id="aboutModal">
@@ -178,13 +167,17 @@
                         <i class="far fa-star" data-rating="5"></i>
                     </div>
                     <input type="text" id="ratingUsername" placeholder="Masukkan nama/username Anda..." 
-                           style="width:100%;padding:8px;border-radius:6px;margin:10px 0;border:1px solid #ccc;" />
+                           class="rating-input" />
                     <textarea placeholder="Tulis ulasan Anda (opsional)..."></textarea>
                     <button class="submit-rating">Submit Rating</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- File Input Tersembunyi untuk Upload Gambar -->
+    <input type="file" id="uploadImageInput" accept="image/*" style="display:none;">
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
