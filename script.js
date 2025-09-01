@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const ratingsModal = document.getElementById('ratingsModal');
     const closeRatingsModal = document.getElementById('closeRatingsModal');
     const newChatBtn = document.getElementById('newChatBtn');
-    const generateImageBtn = document.getElementById('generateImageBtn');
+    const openImageModalBtn = document.getElementById("openImageModalBtn");
     const imagePromptInput = document.getElementById('imagePrompt');
     const imageResult = document.getElementById('imageResult');
     const imageModal = document.getElementById('imageModal');
@@ -25,8 +25,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const ratingTextarea = document.querySelector('.modal-body textarea');
     const ratingUsername = document.getElementById('ratingUsername');
     let selectedRating = 0;
-    
-    // Fungsi buat pop-up
+    const generateImageBtn = document.getElementById("generateImageBtn");
+    const uploadInput = document.getElementById("uploadImageInput");
+    const uploadBtn = document.getElementById("uploadImageBtn");
+    addBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        plusMenu.classList.toggle("show");
+        addBtn.classList.toggle("rotate");
+        if (addBtn.classList.contains("rotate")) {
+            addIcon.className = "fas fa-times";
+        } else {
+            addIcon.className = "fas fa-plus";
+        }
+    });
+    document.addEventListener("click", (e) => {
+        if (!plusMenu.contains(e.target) && !addBtn.contains(e.target)) {
+            plusMenu.classList.remove("show");
+            addBtn.classList.remove("rotate");
+            addIcon.className = "fas fa-plus";
+        }
+    });
+    if (uploadBtn) {
+        uploadBtn.addEventListener("click", () => {
+            uploadInput.click();
+        });
+    }
+    uploadInput.onchange = async () => {
+        const file = uploadInput.files[0];
+        if (!file) return;
+        addMessage(`<img src="${URL.createObjectURL(file)}" style="max-width:200px;border-radius:10px;"/>`, "user");
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (data.url) {
+                addMessage(`<a href="${data.url}" target="_blank">${data.url}</a>`, "user");
+                try {
+                    const ocrRes = await fetch(`/api/ocr?url=${encodeURIComponent(data.url)}`);
+                    const ocrData = await ocrRes.json();
+                    addMessage(ocrData.text || "⚠️ OCR gagal baca teks.", "ai");
+                } catch (err) {
+                    addMessage("🚨 Gagal konek OCR: " + err.message, "ai");
+                }
+            } else {
+                addMessage("⚠️ Gagal upload gambar.", "ai");
+            }
+        } catch (err) {
+            addMessage("🚨 Error koneksi saat upload: " + err.message, "ai");
+        }
+    };
     function showPopup(msg, success) {
         const popup = document.createElement("div");
         popup.classList.add("popup");
@@ -66,6 +117,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             imageResult.innerHTML = "🚨 Error koneksi ke server FLUX.";
         }
+    });
+    openImageModalBtn.addEventListener("click", () => {
+        imageModal.classList.remove("hidden");
     });
     closeImageModal.addEventListener('click', () => {
         imageModal.classList.add('hidden');
@@ -120,24 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
     messageInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && messageInput.value.trim() !== '') {
             sendMessage();
-        }
-    });
-    addBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        plusMenu.classList.toggle('show');
-        addBtn.classList.toggle('rotate');
-        
-        if (addBtn.classList.contains('rotate')) {
-            addIcon.className = 'fas fa-times';
-        } else {
-            addIcon.className = 'fas fa-plus';
-        }
-    });
-    document.addEventListener('click', function(e) {
-        if (!plusMenu.contains(e.target) && e.target !== addBtn) {
-            plusMenu.classList.remove('show');
-            addBtn.classList.remove('rotate');
-            addIcon.className = 'fas fa-plus';
         }
     });
     function addMessage(text, sender) {
